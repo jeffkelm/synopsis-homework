@@ -7,7 +7,7 @@
 
   <logger name="com.kelm.synopsis.calculator" level="INFO"/>
 
-  <root level="DEBUG">          
+  <root level="ERROR">          
     <appender-ref ref="standardOut" />
   </root>  
 </configuration>

@@ -168,12 +168,7 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Double> impl
 	}
 
 	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
-	 * </p>
+	 * The operand of an arithmetic function (add/sub/mult/div) if it's a variable set by a let expression.
 	 */
 	@Override
 	public Double visitVarArg(@NotNull CalculatorParser.VarArgContext ctx) {
@@ -205,12 +200,7 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Double> impl
 	}
 
 	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
-	 * </p>
+	 * The operand of an arithmetic function (add/sub/mult/div) if it's a plain number.
 	 */
 	@Override
 	public Double visitNumArg(@NotNull CalculatorParser.NumArgContext ctx) {
@@ -336,12 +326,7 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Double> impl
 	}
 
 	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
-	 * </p>
+	 * The operand of an arithmetic function (add/sub/mult/div) if it's another function.
 	 */
 	@Override
 	public Double visitFuncArg(@NotNull CalculatorParser.FuncArgContext ctx) {

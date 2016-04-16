@@ -6,6 +6,7 @@ Project assumptions:
 4) Uses JUnit 4.12 for unit tests.
 5) Uses Maven 3 for running the build.
 6) Uses utilities from the Apache Commons libraries (NumUtils/MathUtils/StringUtils).
+7) The result of the expression is displayed via the log (INFO level). Logs are captured both in the console and in expressionEvaluation.log.
 
 This GitHub project includes:
 

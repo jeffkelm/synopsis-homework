@@ -2,6 +2,7 @@
 package com.kelm.synopsis.calculator.antlr4;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.antlr.v4.runtime.misc.NotNull;
@@ -33,7 +34,7 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Double> impl
 	 * Tracks the variable name of a let operator (i.e. the first argument to
 	 * the operator) and stores its eventually calculated value (the
 	 * number/expression in the second argument) as the map value. The variable
-	 * name is popped off once the let expression has been evaluated.
+	 * name is removed from the map once the let expression has been evaluated.
 	 */
 	private Map<String, Double> letVariableValueMap = new HashMap<String, Double>();
 
@@ -89,7 +90,8 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Double> impl
 		Double division = arg1Result / arg2Result;
 
 		if (LOG.isDebugEnabled()) {
-			LOG.debug(String.format("Finished div operation: %s. Result: %.2f", new Object[] { ctx.getText(), division }));
+			LOG.debug(String.format("Finished div operation: %s. Result: %.2f",
+					new Object[] { ctx.getText(), division }));
 		}
 
 		return division;
@@ -118,7 +120,8 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Double> impl
 		Double subtraction = arg1Result - arg2Result;
 
 		if (LOG.isDebugEnabled()) {
-			LOG.debug(String.format("Finished sub operation: %s. Result: %.2f", new Object[] { ctx.getText(), subtraction }));
+			LOG.debug(String.format("Finished sub operation: %s. Result: %.2f",
+					new Object[] { ctx.getText(), subtraction }));
 		}
 
 		return subtraction;
@@ -147,7 +150,8 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Double> impl
 		Double multiplication = arg1Result * arg2Result;
 
 		if (LOG.isDebugEnabled()) {
-			LOG.debug(String.format("Finished mult operation: %s. Result: %.2f", new Object[] { ctx.getText(), multiplication }));
+			LOG.debug(String.format("Finished mult operation: %s. Result: %.2f",
+					new Object[] { ctx.getText(), multiplication }));
 		}
 
 		return multiplication;
@@ -168,15 +172,22 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Double> impl
 		}
 		Double varValue = null;
 		{
-			TerminalNode var = ctx.Var();
+			TerminalNode varNode = ctx.Var();
 
-			if ((var != null) && letVariableValueMap.containsKey(var)) {
-				String varText = var.getText();
+			if (varNode != null) {
+				String var = varNode.getText();
 
-				varValue = letVariableValueMap.get(varText);
+				if (letVariableValueMap.containsKey(var)) {
+					varValue = letVariableValueMap.get(var);
+				}
+				else {
+					LOG.error(String.format(
+							"Problem processing var from ANTLR context: %s. No variable with name: %s has been processed in the expression.",
+							new Object[] { ctx.getText(), var }));
+				}
 			}
 			else {
-				LOG.error(String.format("Problem processing var.", null));
+				LOG.error(String.format("Problem processing var: no var found in ANTLR context: %s.", ctx.getText()));
 			}
 		}
 
@@ -227,38 +238,91 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Double> impl
 		if (LOG.isDebugEnabled()) {
 			LOG.debug(String.format("Processing a let operation: %s.", ctx.getText()));
 		}
+		// the first argument of the let expression
 		String varName = ctx.Var().getText();
-		Double varValue = null;
+		// the second argument of the let expression. If this argument is
+		// actually a number instead of a function, this variable is set to
+		// null.
+		MathFuncContext mathFuncValueArg = null;
+		// the third argument of the let expression
+		MathFuncContext mathFuncExpressionUsingVariableArg = null;
 		{
-			TerminalNode numValueArg = ctx.Num();
-			MathFuncContext mathFuncValueArg = ctx.mathFunc().get(0);
+			// The second argument of the let expression can be a mathFunc
+			// or a Num and the third argument must be a mathFunc, so this
+			// list contains exactly 1 or 2 elements.
+			List<MathFuncContext> mathFuncList = ctx.mathFunc();
 
-			if (mathFuncValueArg != null) {
-				varValue = visit(mathFuncValueArg);
+			if (!((mathFuncList.size() == 1) || (mathFuncList.size() == 2))) {
+				throw new IllegalStateException(String.format(
+						"Error parsing let expression: %s. The first argument must be composed of one or more alpha characters. The second argument is either a number or an arithmetic expression or a let expression. The third argument must be an arithmetic expression or a let expression.",
+						ctx.getText()));
+			}
+			if (mathFuncList.size() == 2) {
+				mathFuncExpressionUsingVariableArg = mathFuncList.get(1);
+				mathFuncValueArg = mathFuncList.get(0);
 			}
 			else {
-				varValue = convertNumToDouble(numValueArg.getText());
+				mathFuncExpressionUsingVariableArg = mathFuncList.get(0);
 			}
 		}
-		// the third argument
-		MathFuncContext letExpression = ctx.mathFunc().get(1);
+		Double varValue = calculateVariableValueForLetExpression(ctx, mathFuncValueArg);
+		Double letExpressionResult = evaluateThirdArgumentOfLetExpression(ctx, varName,
+				mathFuncExpressionUsingVariableArg, varValue);
 
+		return letExpressionResult;
+	}
+
+	/**
+	 * <ol>
+	 * <li>Pushes the let expression variable and its associated value onto the
+	 * 'variable stack'.
+	 * <li>Processes the expression parameter of the let (i.e. the third
+	 * parameter).
+	 * <li>Pops the let expression variable from the 'variable stack'.
+	 * </ol>
+	 * 
+	 * @param ctx
+	 * @param varName
+	 * @param expressionToProcess
+	 * @param varValue
+	 * @return
+	 */
+	private Double evaluateThirdArgumentOfLetExpression(CalculatorParser.LetContext ctx, String varName,
+			MathFuncContext expressionToProcess, Double varValue) {
+		// store the variable and its value
 		letVariableValueMap.put(varName, varValue);
 		if (LOG.isDebugEnabled()) {
-			LOG.debug(String.format("In let operation: %s. Associating value: %.2f with var: %s.", new Object[] { ctx.getText(), varValue, varName }));
+			LOG.debug(String.format("In let operation: %s. Associating value: %.2f with var: %s.",
+					new Object[] { ctx.getText(), varValue, varName }));
 		}
 
-		Double letExpressionResult = visit(letExpression);
+		Double letExpressionResult = visit(expressionToProcess);
 
 		if (LOG.isDebugEnabled()) {
-			LOG.debug(String.format("Finished let operation: %s. Result: %.2f"),
-					new Object[] { ctx.getText(), letExpressionResult });
+			LOG.debug(String.format("Finished let operation: %s. Result: %.2f", new Object[] { ctx.getText(), letExpressionResult }));
 		}
 
 		// at end of let expression; the variable name is now out-of-context
 		letVariableValueMap.remove(varName);
 
 		return letExpressionResult;
+	}
+
+	private Double calculateVariableValueForLetExpression(CalculatorParser.LetContext ctx,
+			MathFuncContext mathFuncValueArg) {
+		Double varValue = null;
+		{
+			if (mathFuncValueArg != null) {
+				varValue = visit(mathFuncValueArg);
+			}
+			else {
+				TerminalNode numValueArg = ctx.Num();
+
+				varValue = convertNumToDouble(numValueArg.getText());
+			}
+		}
+
+		return varValue;
 	}
 
 	/**

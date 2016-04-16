@@ -1,11 +1,14 @@
 // Generated from com\kelm\synopsis\calculator\antlr4\Calculator.g4 by ANTLR 4.3
 package com.kelm.synopsis.calculator.antlr4;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.antlr.v4.runtime.misc.NotNull;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -29,6 +32,13 @@ import com.kelm.synopsis.calculator.antlr4.CalculatorParser.MathFuncContext;
  */
 public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Double> implements CalculatorVisitor<Double> {
 	private static final Logger LOG = LoggerFactory.getLogger(CalculatorBaseVisitor.class);
+	/**
+	 *  Rounds to 3 decimal places. Used for displaying logging messages.
+	 */
+	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.###");
+	{
+		DECIMAL_FORMAT.setRoundingMode(RoundingMode.CEILING);
+	}
 
 	/**
 	 * Tracks the variable name of a let operator (i.e. the first argument to
@@ -52,16 +62,16 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Double> impl
 		Double arg2Result = (Double) visit(arg2);
 
 		if (arg1Result == null) {
-			LOG.error(String.format("The first operand of an add operation returned null.", arg1.getText()));
+			throw new ParseCancellationException(String.format("The first operand of an add operation returned null.", arg1.getText()));
 		}
 		if (arg2Result == null) {
-			LOG.error(String.format("The second operand of an add operation returned null.", arg1.getText()));
+			throw new ParseCancellationException(String.format("The second operand of an add operation returned null.", arg1.getText()));
 		}
 
 		Double sum = arg1Result + arg2Result;
 
 		if (LOG.isDebugEnabled()) {
-			LOG.debug(String.format("Finished add operation: %s. Result: %.2f", new Object[] { ctx.getText(), sum }));
+			LOG.debug(String.format("Finished add operation: %s. Result: %s", new Object[] { ctx.getText(),  DECIMAL_FORMAT.format(sum) }));
 		}
 
 		return sum;
@@ -81,17 +91,17 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Double> impl
 		Double arg2Result = (Double) visit(arg2);
 
 		if (arg1Result == null) {
-			LOG.error(String.format("The first operand of a div operation returned null.", arg1.getText()));
+			throw new ParseCancellationException(String.format("The first operand of a div operation returned null.", arg1.getText()));
 		}
 		if (arg2Result == null) {
-			LOG.error(String.format("The second operand of a div operation returned null.", arg1.getText()));
+			throw new ParseCancellationException(String.format("The second operand of a div operation returned null.", arg1.getText()));
 		}
 
 		Double division = arg1Result / arg2Result;
 
 		if (LOG.isDebugEnabled()) {
-			LOG.debug(String.format("Finished div operation: %s. Result: %.2f",
-					new Object[] { ctx.getText(), division }));
+			LOG.debug(String.format("Finished div operation: %s. Result: %s",
+					new Object[] { ctx.getText(),  DECIMAL_FORMAT.format(division) }));
 		}
 
 		return division;
@@ -111,17 +121,17 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Double> impl
 		Double arg2Result = (Double) visit(arg2);
 
 		if (arg1Result == null) {
-			LOG.error(String.format("The first operand of a sub operation returned null.", arg1.getText()));
+			throw new ParseCancellationException(String.format("The first operand of a sub operation returned null.", arg1.getText()));
 		}
 		if (arg2Result == null) {
-			LOG.error(String.format("The second operand of a sub operation returned null.", arg1.getText()));
+			throw new ParseCancellationException(String.format("The second operand of a sub operation returned null.", arg1.getText()));
 		}
 
 		Double subtraction = arg1Result - arg2Result;
 
 		if (LOG.isDebugEnabled()) {
-			LOG.debug(String.format("Finished sub operation: %s. Result: %.2f",
-					new Object[] { ctx.getText(), subtraction }));
+			LOG.debug(String.format("Finished sub operation: %s. Result: %s",
+					new Object[] { ctx.getText(),  DECIMAL_FORMAT.format(subtraction) }));
 		}
 
 		return subtraction;
@@ -141,17 +151,17 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Double> impl
 		Double arg2Result = (Double) visit(arg2);
 
 		if (arg1Result == null) {
-			LOG.error(String.format("The first operand of a sub operation returned null.", arg1.getText()));
+			throw new ParseCancellationException(String.format("The first operand of a sub operation returned null.", arg1.getText()));
 		}
 		if (arg2Result == null) {
-			LOG.error(String.format("The second operand of a sub operation returned null.", arg1.getText()));
+			throw new ParseCancellationException(String.format("The second operand of a sub operation returned null.", arg1.getText()));
 		}
 
 		Double multiplication = arg1Result * arg2Result;
 
 		if (LOG.isDebugEnabled()) {
-			LOG.debug(String.format("Finished mult operation: %s. Result: %.2f",
-					new Object[] { ctx.getText(), multiplication }));
+			LOG.debug(String.format("Finished mult operation: %s. Result: %s",
+					new Object[] { ctx.getText(),  DECIMAL_FORMAT.format(multiplication) }));
 		}
 
 		return multiplication;
@@ -181,13 +191,13 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Double> impl
 					varValue = letVariableValueMap.get(var);
 				}
 				else {
-					LOG.error(String.format(
+					throw new ParseCancellationException(String.format(
 							"Problem processing var from ANTLR context: %s. No variable with name: %s has been processed in the expression.",
 							new Object[] { ctx.getText(), var }));
 				}
 			}
 			else {
-				LOG.error(String.format("Problem processing var: no var found in ANTLR context: %s.", ctx.getText()));
+				throw new ParseCancellationException(String.format("Problem processing var: no var found in ANTLR context: %s.", ctx.getText()));
 			}
 		}
 
@@ -218,13 +228,13 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Double> impl
 		boolean validNumber = NumberUtils.isNumber(numText);
 
 		if (!validNumber) {
-			LOG.error(String.format("Read %s while parsing a numArg; was expecting a double.", numText));
+			throw new ParseCancellationException(String.format("Read %s while parsing a numArg; was expecting a double.", numText));
 		}
 
 		Double num = NumberUtils.toDouble(numText);
 
 		if (LOG.isDebugEnabled()) {
-			LOG.debug(String.format("Processed numArg, returning %.2f.", num));
+			LOG.debug(String.format("Processed numArg, returning %s.",  DECIMAL_FORMAT.format(num)));
 		}
 
 		return num;
@@ -253,7 +263,7 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Double> impl
 			List<MathFuncContext> mathFuncList = ctx.mathFunc();
 
 			if (!((mathFuncList.size() == 1) || (mathFuncList.size() == 2))) {
-				throw new IllegalStateException(String.format(
+				throw new ParseCancellationException(String.format(
 						"Error parsing let expression: %s. The first argument must be composed of one or more alpha characters. The second argument is either a number or an arithmetic expression or a let expression. The third argument must be an arithmetic expression or a let expression.",
 						ctx.getText()));
 			}
@@ -292,14 +302,14 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Double> impl
 		// store the variable and its value
 		letVariableValueMap.put(varName, varValue);
 		if (LOG.isDebugEnabled()) {
-			LOG.debug(String.format("In let operation: %s. Associating value: %.2f with var: %s.",
-					new Object[] { ctx.getText(), varValue, varName }));
+			LOG.debug(String.format("In let operation: %s. Associating value: %s with var: %s.",
+					new Object[] { ctx.getText(),  DECIMAL_FORMAT.format(varValue), varName }));
 		}
 
 		Double letExpressionResult = visit(expressionToProcess);
 
 		if (LOG.isDebugEnabled()) {
-			LOG.debug(String.format("Finished let operation: %s. Result: %.2f", new Object[] { ctx.getText(), letExpressionResult }));
+			LOG.debug(String.format("Finished let operation: %s. Result: %s", new Object[] { ctx.getText(),  DECIMAL_FORMAT.format(letExpressionResult) }));
 		}
 
 		// at end of let expression; the variable name is now out-of-context

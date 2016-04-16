@@ -33,7 +33,7 @@ public class Calculator {
 			
 			String expression = args[0];
 			ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator();
-		
+			
 			expressionEvaluator.evaluate(expression);			
 		}
 	}

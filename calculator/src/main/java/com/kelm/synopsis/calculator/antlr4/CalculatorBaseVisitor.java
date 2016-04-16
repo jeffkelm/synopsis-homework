@@ -2,14 +2,12 @@
 package com.kelm.synopsis.calculator.antlr4;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.math3.util.MathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,28 +26,29 @@ import com.kelm.synopsis.calculator.antlr4.CalculatorParser.MathFuncContext;
  *            The return type of the visit operation: %s. Use {@link Void} for
  *            operations with no return type.
  */
-public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Integer> implements CalculatorVisitor<Integer> {
+public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Double> implements CalculatorVisitor<Double> {
 	private static final Logger LOG = LoggerFactory.getLogger(CalculatorBaseVisitor.class);
 
 	/**
 	 * Tracks the variable name of a let operator (i.e. the first argument to
 	 * the operator) and stores its eventually calculated value (the
-	 * number/expression in the second argument) as the map value.
+	 * number/expression in the second argument) as the map value. The variable
+	 * name is popped off once the let expression has been evaluated.
 	 */
-	private Map<String, Integer> letVariableValueMap = new HashMap<String, Integer>();
+	private Map<String, Double> letVariableValueMap = new HashMap<String, Double>();
 
 	/**
 	 * 'add(' mathFuncArg ',' mathFuncArg ')' # add
 	 */
 	@Override
-	public Integer visitAdd(@NotNull CalculatorParser.AddContext ctx) {
+	public Double visitAdd(@NotNull CalculatorParser.AddContext ctx) {
 		if (LOG.isDebugEnabled()) {
-			LOG.debug(String.format("Processing an add operation: %s."), ctx.getText());
+			LOG.debug(String.format("Processing an add operation: %s.", ctx.getText()));
 		}
 		MathFuncArgContext arg1 = ctx.mathFuncArg(0);
 		MathFuncArgContext arg2 = ctx.mathFuncArg(1);
-		Integer arg1Result = (Integer) visit(arg1);
-		Integer arg2Result = (Integer) visit(arg2);
+		Double arg1Result = (Double) visit(arg1);
+		Double arg2Result = (Double) visit(arg2);
 
 		if (arg1Result == null) {
 			LOG.error(String.format("The first operand of an add operation returned null.", arg1.getText()));
@@ -58,10 +57,10 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Integer> imp
 			LOG.error(String.format("The second operand of an add operation returned null.", arg1.getText()));
 		}
 
-		Integer sum = arg1Result + arg2Result;
+		Double sum = arg1Result + arg2Result;
 
 		if (LOG.isDebugEnabled()) {
-			LOG.debug(String.format("Finished add operation: %s. Result: %d"), new Object[] { ctx.getText(), sum });
+			LOG.debug(String.format("Finished add operation: %s. Result: %.2f", new Object[] { ctx.getText(), sum }));
 		}
 
 		return sum;
@@ -71,14 +70,14 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Integer> imp
 	 * 'div(' mathFuncArg ',' mathFuncArg ')' # div
 	 */
 	@Override
-	public Integer visitDiv(@NotNull CalculatorParser.DivContext ctx) {
+	public Double visitDiv(@NotNull CalculatorParser.DivContext ctx) {
 		if (LOG.isDebugEnabled()) {
-			LOG.debug(String.format("Processing a div operation: %s."), ctx.getText());
+			LOG.debug(String.format("Processing a div operation: %s.", ctx.getText()));
 		}
 		MathFuncArgContext arg1 = ctx.mathFuncArg(0);
 		MathFuncArgContext arg2 = ctx.mathFuncArg(1);
-		Integer arg1Result = (Integer) visit(arg1);
-		Integer arg2Result = (Integer) visit(arg2);
+		Double arg1Result = (Double) visit(arg1);
+		Double arg2Result = (Double) visit(arg2);
 
 		if (arg1Result == null) {
 			LOG.error(String.format("The first operand of a div operation returned null.", arg1.getText()));
@@ -87,10 +86,10 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Integer> imp
 			LOG.error(String.format("The second operand of a div operation returned null.", arg1.getText()));
 		}
 
-		Integer division = arg1Result / arg2Result;
-		
+		Double division = arg1Result / arg2Result;
+
 		if (LOG.isDebugEnabled()) {
-			LOG.debug(String.format("Finished div operation: %s. Result: %d"), new Object[] { ctx.getText(), division });
+			LOG.debug(String.format("Finished div operation: %s. Result: %.2f", new Object[] { ctx.getText(), division }));
 		}
 
 		return division;
@@ -100,14 +99,14 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Integer> imp
 	 * 'sub(' mathFuncArg ',' mathFuncArg ')' # sub
 	 */
 	@Override
-	public Integer visitSub(@NotNull CalculatorParser.SubContext ctx) {
+	public Double visitSub(@NotNull CalculatorParser.SubContext ctx) {
 		if (LOG.isDebugEnabled()) {
-			LOG.debug(String.format("Processing a sub operation: %s."), ctx.getText());
+			LOG.debug(String.format("Processing a sub operation: %s.", ctx.getText()));
 		}
 		MathFuncArgContext arg1 = ctx.mathFuncArg(0);
 		MathFuncArgContext arg2 = ctx.mathFuncArg(1);
-		Integer arg1Result = (Integer) visit(arg1);
-		Integer arg2Result = (Integer) visit(arg2);
+		Double arg1Result = (Double) visit(arg1);
+		Double arg2Result = (Double) visit(arg2);
 
 		if (arg1Result == null) {
 			LOG.error(String.format("The first operand of a sub operation returned null.", arg1.getText()));
@@ -116,10 +115,10 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Integer> imp
 			LOG.error(String.format("The second operand of a sub operation returned null.", arg1.getText()));
 		}
 
-		Integer subtraction = arg1Result - arg2Result;
-		
+		Double subtraction = arg1Result - arg2Result;
+
 		if (LOG.isDebugEnabled()) {
-			LOG.debug(String.format("Finished sub operation: %s. Result: %d"), new Object[] { ctx.getText(), subtraction });
+			LOG.debug(String.format("Finished sub operation: %s. Result: %.2f", new Object[] { ctx.getText(), subtraction }));
 		}
 
 		return subtraction;
@@ -129,14 +128,14 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Integer> imp
 	 * 'mult(' mathFuncArg ',' mathFuncArg ')' # mult
 	 */
 	@Override
-	public Integer visitMult(@NotNull CalculatorParser.MultContext ctx) {
+	public Double visitMult(@NotNull CalculatorParser.MultContext ctx) {
 		if (LOG.isDebugEnabled()) {
-			LOG.debug(String.format("Processing a mult operation: %s."), ctx.getText());
+			LOG.debug(String.format("Processing a mult operation: %s.", ctx.getText()));
 		}
 		MathFuncArgContext arg1 = ctx.mathFuncArg(0);
 		MathFuncArgContext arg2 = ctx.mathFuncArg(1);
-		Integer arg1Result = (Integer) visit(arg1);
-		Integer arg2Result = (Integer) visit(arg2);
+		Double arg1Result = (Double) visit(arg1);
+		Double arg2Result = (Double) visit(arg2);
 
 		if (arg1Result == null) {
 			LOG.error(String.format("The first operand of a sub operation returned null.", arg1.getText()));
@@ -145,10 +144,10 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Integer> imp
 			LOG.error(String.format("The second operand of a sub operation returned null.", arg1.getText()));
 		}
 
-		Integer multiplication = arg1Result * arg2Result;
-		
+		Double multiplication = arg1Result * arg2Result;
+
 		if (LOG.isDebugEnabled()) {
-			LOG.debug(String.format("Finished mult operation: %s. Result: %d"), new Object[] { ctx.getText(), multiplication });
+			LOG.debug(String.format("Finished mult operation: %s. Result: %.2f", new Object[] { ctx.getText(), multiplication }));
 		}
 
 		return multiplication;
@@ -163,18 +162,25 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Integer> imp
 	 * </p>
 	 */
 	@Override
-	public Integer visitVarArg(@NotNull CalculatorParser.VarArgContext ctx) {
+	public Double visitVarArg(@NotNull CalculatorParser.VarArgContext ctx) {
 		if (LOG.isDebugEnabled()) {
-			LOG.debug(String.format("Processing a variable name: %s."), ctx.getText());
+			LOG.debug(String.format("Processing a variable name: %s.", ctx.getText()));
 		}
-		TerminalNode var = ctx.Var();
+		Double varValue = null;
+		{
+			TerminalNode var = ctx.Var();
 
-		if ((var != null) && letVariableValueMap.containsKey(var)) {
-			String varText = var.getText();
-			Integer varValue = letVariableValueMap.get(varText);
+			if ((var != null) && letVariableValueMap.containsKey(var)) {
+				String varText = var.getText();
+
+				varValue = letVariableValueMap.get(varText);
+			}
+			else {
+				LOG.error(String.format("Problem processing var.", null));
+			}
 		}
 
-		return null;
+		return varValue;
 	}
 
 	/**
@@ -186,28 +192,28 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Integer> imp
 	 * </p>
 	 */
 	@Override
-	public Integer visitNumArg(@NotNull CalculatorParser.NumArgContext ctx) {
+	public Double visitNumArg(@NotNull CalculatorParser.NumArgContext ctx) {
 		if (LOG.isDebugEnabled()) {
-			LOG.debug(String.format("Processing a number argument: %s."), ctx.getText());
+			LOG.debug(String.format("Processing a number argument: %s.", ctx.getText()));
 		}
 		String numText = ctx.Num().getText();
-		int num = convertNumToInteger(numText);
+		Double num = convertNumToDouble(numText);
 
 		return num;
 	}
 
-	private int convertNumToInteger(String numText) {
+	private Double convertNumToDouble(String numText) {
 		// the grammar guarantees that this is a number, but...
 		boolean validNumber = NumberUtils.isNumber(numText);
 
 		if (!validNumber) {
-			LOG.error(String.format("Read %s while parsing a numArg; was expecting an integer.", numText));
+			LOG.error(String.format("Read %s while parsing a numArg; was expecting a double.", numText));
 		}
 
-		int num = NumberUtils.toInt(numText);
+		Double num = NumberUtils.toDouble(numText);
 
 		if (LOG.isDebugEnabled()) {
-			LOG.debug(String.format("Processed numArg, returning %d.", num));
+			LOG.debug(String.format("Processed numArg, returning %.2f.", num));
 		}
 
 		return num;
@@ -217,12 +223,12 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Integer> imp
 	 * 'let(' Var ',' (Num | mathFunc) ',' mathFunc ')' # let
 	 */
 	@Override
-	public Integer visitLet(@NotNull CalculatorParser.LetContext ctx) {
+	public Double visitLet(@NotNull CalculatorParser.LetContext ctx) {
 		if (LOG.isDebugEnabled()) {
-			LOG.debug(String.format("Processing a let operation: %s."), ctx.getText());
+			LOG.debug(String.format("Processing a let operation: %s.", ctx.getText()));
 		}
 		String varName = ctx.Var().getText();
-		Integer varValue = null;
+		Double varValue = null;
 		{
 			TerminalNode numValueArg = ctx.Num();
 			MathFuncContext mathFuncValueArg = ctx.mathFunc().get(0);
@@ -231,7 +237,7 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Integer> imp
 				varValue = visit(mathFuncValueArg);
 			}
 			else {
-				varValue = convertNumToInteger(numValueArg.getText());
+				varValue = convertNumToDouble(numValueArg.getText());
 			}
 		}
 		// the third argument
@@ -239,10 +245,20 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Integer> imp
 
 		letVariableValueMap.put(varName, varValue);
 		if (LOG.isDebugEnabled()) {
-			LOG.debug(String.format("In let operation: %s. Associating value: %d with var: %s."), new Object[] { ctx.getText(), varValue, varName });
+			LOG.debug(String.format("In let operation: %s. Associating value: %.2f with var: %s.", new Object[] { ctx.getText(), varValue, varName }));
 		}
 
-		return visit(letExpression);
+		Double letExpressionResult = visit(letExpression);
+
+		if (LOG.isDebugEnabled()) {
+			LOG.debug(String.format("Finished let operation: %s. Result: %.2f"),
+					new Object[] { ctx.getText(), letExpressionResult });
+		}
+
+		// at end of let expression; the variable name is now out-of-context
+		letVariableValueMap.remove(varName);
+
+		return letExpressionResult;
 	}
 
 	/**
@@ -254,7 +270,7 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Integer> imp
 	 * </p>
 	 */
 	@Override
-	public Integer visitFuncArg(@NotNull CalculatorParser.FuncArgContext ctx) {
+	public Double visitFuncArg(@NotNull CalculatorParser.FuncArgContext ctx) {
 		return visitChildren(ctx);
 	}
 }

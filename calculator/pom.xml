@@ -47,25 +47,60 @@
 			<version>3.6.1</version>
 		</dependency>
 	</dependencies>
-
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.antlr</groupId>
-				<artifactId>antlr4-maven-plugin</artifactId>
-				<version>4.3</version>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
 				<executions>
 					<execution>
-						<id>antlr</id>
+						<id>copy-dependencies</id>
+						<phase>prepare-package</phase>
 						<goals>
-							<goal>antlr4</goal>
+							<goal>copy-dependencies</goal>
 						</goals>
 						<configuration>
-							<visitor>true</visitor>
+							<outputDirectory>${project.build.directory}/lib</outputDirectory>
+							<overWriteReleases>false</overWriteReleases>
+							<overWriteSnapshots>false</overWriteSnapshots>
+							<overWriteIfNewer>true</overWriteIfNewer>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>lib/</classpathPrefix>
+							<mainClass>theMainClass</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+	<!-- Only needed to generate the base visitor/parser/lexer classes from 
+		the grammar. 
+		<plugin>
+			<groupId>org.antlr</groupId>
+			<artifactId>antlr4-maven-plugin</artifactId>
+			<version>4.3</version>
+			<executions>
+				<execution>
+					<id>antlr</id>
+					<goals>
+						<goal>antlr4</goal>
+					</goals>
+					<configuration>
+						<visitor>true</visitor>
+					</configuration>
+				</execution>
+			</executions>
+		</plugin> 
+		-->
 		</plugins>
 	</build>
+
 </project>

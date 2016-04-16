@@ -27,12 +27,12 @@ public class ExpressionEvaluator {
 		parser.addParseListener(new CalculatorBaseListener());	
 
 		ParseTree tree = parser.mathFunc();
-		CalculatorVisitor<Integer> visitor = new CalculatorBaseVisitor<Integer>();
+		CalculatorVisitor<Double> visitor = new CalculatorBaseVisitor();
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("Instantiated ANTLR classes, about to trigger visitor.");
 		}
-		Integer result = visitor.visit(tree);
+		Double result = visitor.visit(tree);
 		
-		LOG.info(String.format("Result of expression evaluation: %d.", result));
+		LOG.info(String.format("Result of expression evaluation: %.2f.", result));
 	}
 }

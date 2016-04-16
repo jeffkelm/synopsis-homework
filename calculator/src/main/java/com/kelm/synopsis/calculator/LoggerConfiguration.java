@@ -8,11 +8,9 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 
 /**
- * The (optional) second argument to the command line is the log level set by
- * the user. The application's classes are assumed to be contained in the same
- * package as the application entry point class (or in its sub-packages) i.e.
- * the logger pointing to the application entry point`s class package is being
- * configured.
+ * Sets the logger level for the application. It uses the logger pointing to the
+ * package containing the specified class (which should be the application entry
+ * point's class). Valid logger levels are: ERROR/WARN/INFO/DEBUG.
  */
 public class LoggerConfiguration {
 	private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(LoggerConfiguration.class);
@@ -27,11 +25,14 @@ public class LoggerConfiguration {
 					new Object[] { userSpecifiedLogLevelString, applicationEntryPointClass }));
 		}
 		if (applicationEntryPointClass == null) {
-			LOG.error("No application entry point class was supplied. Logger level for the application will be left as set in logback.xml.");
+			LOG.error(
+					"No application entry point class was supplied. Logger level for the application will be left as set in logback.xml.");
 		}
 		else if (StringUtils.isBlank(userSpecifiedLogLevelString)) {
-			// since this method is only invoked if a second command line argument is passed, we'll call this an error instead of a warn
-			LOG.error("No log level was supplied. Logger level for the application will be left as set in logback.xml.");
+			// since this method is only invoked if a second command line
+			// argument is passed, we'll call this an error instead of a warn
+			LOG.error(
+					"No log level was supplied. Logger level for the application will be left as set in logback.xml.");
 		}
 		else {
 			LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();

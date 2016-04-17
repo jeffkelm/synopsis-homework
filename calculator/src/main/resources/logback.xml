@@ -4,14 +4,27 @@
 		 	<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
 		 </encoder>
 	 </appender>
+	 
+	<appender name="fileAppender"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>calculator.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- Daily rollover, max 30 days or 3 Gb. -->
+			<fileNamePattern>logFile.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<maxHistory>30</maxHistory>
+			<totalSizeCap>3GB</totalSizeCap>
+		</rollingPolicy>
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
+			</pattern>
+		</encoder>
+	</appender>	 
 	
 	<!-- Package level logger. This may be overridden by passing the level (DEBUG/INFO/WARN/ERROR) as the second command line argument. -->
 	<logger name="com.kelm.synopsis.calculator" level="DEBUG"/>
 
-	<!-- Logger for application entry point class. -->
-	<logger name="com.kelm.synopsis.calculator.Calculator" level="DEBUG"/>
-
 	<root level="ERROR">          
 		<appender-ref ref="standardOut" />
+		<appender-ref ref="fileAppender" />
 	</root>  
 </configuration>

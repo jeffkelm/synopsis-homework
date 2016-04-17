@@ -198,6 +198,14 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Double> impl
 
 		return varValue;
 	}
+	
+	/**
+	 * The operand of an arithmetic function (add/sub/mult/div) if it's another function.
+	 */
+	@Override
+	public Double visitFuncArg(@NotNull CalculatorParser.FuncArgContext ctx) {
+		return visitChildren(ctx);
+	}	
 
 	/**
 	 * The operand of an arithmetic function (add/sub/mult/div) if it's a plain number.
@@ -323,13 +331,5 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Double> impl
 		}
 
 		return varValue;
-	}
-
-	/**
-	 * The operand of an arithmetic function (add/sub/mult/div) if it's another function.
-	 */
-	@Override
-	public Double visitFuncArg(@NotNull CalculatorParser.FuncArgContext ctx) {
-		return visitChildren(ctx);
 	}
 }

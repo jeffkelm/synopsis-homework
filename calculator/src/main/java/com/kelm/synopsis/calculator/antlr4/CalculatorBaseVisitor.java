@@ -236,7 +236,7 @@ public class CalculatorBaseVisitor extends AbstractParseTreeVisitor<Double> impl
 		}
 
 		return num;
-	}
+	} 
 
 	/**
 	 * 'let(' Var ',' (Num | mathFunc) ',' mathFunc ')' # let

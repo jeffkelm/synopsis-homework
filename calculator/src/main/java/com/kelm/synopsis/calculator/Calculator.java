@@ -1,5 +1,8 @@
 package com.kelm.synopsis.calculator;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,17 +27,26 @@ public class Calculator {
 	 * {@link LoggerConfiguration#setLogLevel(String, Class)}.
 	 */
 	private static final Logger LOG = LoggerFactory.getLogger(Calculator.class);
+	/**
+	 *  Rounds to 3 decimal places. Used for displaying logging messages.
+	 */
+	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.###");
+	{
+		DECIMAL_FORMAT.setRoundingMode(RoundingMode.CEILING);
+	}
 
 	public static void main(String[] args) {
 		boolean validArgs = validateArgs(args);
 
 		if (validArgs) {
 			applyUserSpecifiedLoggerLevel(args);
-			
+
 			String expression = args[0];
 			ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator();
-			
-			expressionEvaluator.evaluate(expression);			
+			Double result = expressionEvaluator.evaluate(expression);
+
+			System.out
+					.println(String.format("The result of expression %s is %s.", new Object[] { expression, DECIMAL_FORMAT.format(result) }));
 		}
 	}
 

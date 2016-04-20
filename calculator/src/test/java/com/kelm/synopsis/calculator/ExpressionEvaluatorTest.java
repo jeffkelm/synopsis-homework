@@ -8,6 +8,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.kelm.synopsis.calculator.ExpressionEvaluator;
+
 import junit.framework.TestCase;
 
 public class ExpressionEvaluatorTest extends TestCase {

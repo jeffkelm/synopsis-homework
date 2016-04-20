@@ -1,5 +1,8 @@
 package com.kelm.synopsis.calculator;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 

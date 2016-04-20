@@ -76,7 +76,7 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>theMainClass</mainClass>
+							<mainClass>com.kelm.synopsis.calculator.Calculator</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

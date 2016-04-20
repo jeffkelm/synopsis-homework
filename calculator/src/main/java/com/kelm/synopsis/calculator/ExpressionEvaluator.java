@@ -1,8 +1,5 @@
 package com.kelm.synopsis.calculator;
 
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
-
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -21,13 +18,6 @@ import com.kelm.synopsis.calculator.antlr4.ThrowingErrorListener;
 
 public class ExpressionEvaluator {
 	private static final Logger LOG = LoggerFactory.getLogger(ExpressionEvaluator.class);
-	/**
-	 *  Rounds to 3 decimal places. Used for displaying logging messages.
-	 */
-	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.###");
-	{
-		DECIMAL_FORMAT.setRoundingMode(RoundingMode.CEILING);
-	}
 
 	public Double evaluate(String expression) {
 		LOG.info(String.format("Evaluating expression: %s.", expression));
@@ -50,7 +40,7 @@ public class ExpressionEvaluator {
 		}
 		Double result = visitor.visit(tree);
 
-		LOG.info(String.format("Result of expression evaluation: %s.", DECIMAL_FORMAT.format(result)));
+		LOG.info(String.format("Result of expression evaluation: %f.", result));
 		
 		return result;
 	}
